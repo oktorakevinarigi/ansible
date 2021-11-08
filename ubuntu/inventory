@@ -1,0 +1,7 @@
+[server]
+103.171.84.228
+
+[server:vars]
+ansible_connection=ssh
+ansible_ssh_user=oktora
+ansible_ssh_pass=Luxica_02
