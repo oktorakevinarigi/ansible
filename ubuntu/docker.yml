@@ -1,7 +1,11 @@
 - hosts: all
   become: true
   tasks:
-    - name: Install Docker
+    - name: Update apt and Upgrade All Packages
+      apt:
+        upgrade: yes
+        update_cache: yes
+    - name: Install Depedency Docker
       apt:
         name:
           - apt-transport-https
@@ -10,23 +14,19 @@
           - gnupg-agent
           - software-properties-common
         update_cache: yes
-
-    - name: add apt-key
+    - name: Add apt-key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
-
-    - name: add docker repo
+    - name: Add docker repo
       apt_repository:
         repo: deb https://download.docker.com/linux/ubuntu focal stable
-
-    - name: install docker 
+    - name: Install Docker 
       apt:
         name: 
           - docker-ce
           - docker-ce-cli
           - containerd.io
         update_cache: yes
-
     - name: add userpermissions
       shell: "usermod -aG docker {{ansible_ssh_user}}"
 
@@ -36,11 +36,12 @@
     # TODO: Make sure you replace user with your desired administrative
     #       username for your remote server!
     #
-    - name: install python package manager
+    - name: Install Python Package Manager
       apt:
-        name: python3-pip
-    
-    - name: install python sdk
+        name: 
+          - python3-pip
+          - python3-docker
+    - name: Install Python sdk
       become_user: "{{ansible_ssh_user}}"
       pip:
         name:
