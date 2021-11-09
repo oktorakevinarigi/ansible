@@ -45,4 +45,5 @@
       pip:
         name:
           - docker
+          - docker-py
           - docker-compose
