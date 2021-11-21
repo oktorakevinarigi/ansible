@@ -1,27 +1,13 @@
 - hosts: all
   become: true
   tasks:
-    - name: Install Nginx Proxy Manager
-      community.docker.docker_container:
-        name: nginx-proxy-manager
-        image: jc21/nginx-proxy-manager:latest
-        ports:
-          - "80:80"
-          - "81:81"
-          - "443:443"
-        env:
-          DB_MYSQL_HOST: "db"
-          DB_MYSQL_PORT: "3306"
-          DB_MYSQL_USER: "npm"
-          DB_MYSQL_PASSWORD: "npm"
-          DB_MYSQL_NAME: "npm"
-        volumes:
-          - ./data:/data
-          - ./letsencrypt:/etc/letsencrypt
-        restart_policy: always
+    - name: Create a network for proxy manager
+      community.docker.docker_network:
+        name: network-nginx-proxy-manager
+
     - name: Install MariaDB
       community.docker.docker_container:
-        name: mariadb-aria
+        name: mariadb-nginx
         image: jc21/mariadb-aria:latest
         env:
           MYSQL_ROOT_PASSWORD: "npm"
@@ -31,3 +17,29 @@
         volumes:
           - ./data/mysql:/var/lib/mysql
         restart_policy: always
+        networks:
+          - name: network-nginx-proxy-manager
+        network_mode: network-nginx-proxy-manager
+
+    - name: Install Nginx Proxy Manager
+      community.docker.docker_container:
+        name: nginx-proxy-manager
+        image: jc21/nginx-proxy-manager:latest
+        ports:
+          - "80:80"
+          - "81:81"
+          - "443:443"
+        env:
+          DB_MYSQL_HOST: "mariadb-nginx"
+          DB_MYSQL_PORT: "3306"
+          DB_MYSQL_USER: "npm"
+          DB_MYSQL_PASSWORD: "npm"
+          DB_MYSQL_NAME: "npm"
+        volumes:
+          - ./data:/data
+          - ./letsencrypt:/etc/letsencrypt
+        restart_policy: always
+        networks:
+          - name: network-nginx-proxy-manager
+        container_default_behavior: compatibility
+        network_mode: network-nginx-proxy-manager

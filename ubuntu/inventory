@@ -4,4 +4,4 @@
 [server:vars]
 ansible_connection=ssh
 ansible_ssh_user=oktora
-ansible_ssh_pass=Luxica_02
+ansible_ssh_pass=password
